@@ -6,7 +6,7 @@
 
 <style>
   :root {
-    background-color: blanchedalmond;
+    background-color: white;
 
     width: 100%;
     height: 100%;

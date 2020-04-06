@@ -1,10 +1,8 @@
+<script context="module">
 
+</script>
 <script>
     export let value = '';
-
- export function getValue() {
-     return value;
- }
 </script>
 
 <style>
@@ -24,4 +22,4 @@ div {
 
 </style>
 
-<div ><label>{value}</label></div>
+<div ><label>{#if value === 0}{''}{:else}{value}{/if}</label></div>
