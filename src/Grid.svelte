@@ -2,8 +2,13 @@
   import Tile from "./Tile.svelte";
   import { onMount } from "svelte";
   import { getRandomInt } from "./Utils.svelte";
+  import { slide } from "svelte/transition";
+  import { flip } from "svelte/animate";
+  import { quintOut } from "svelte/easing";
+	import { crossfade } from 'svelte/transition';
   let score;
   let tiles = [];
+  let tilesSerialized = [];
   let freePositions = [];
   const keyCodes = {
     37: "left",
@@ -14,29 +19,36 @@
   let uid = 0;
 
   onMount(() => {
-    initTiles();
+    newGame();
   });
 
   const initTiles = () => {
-    freePositions = [];
     tiles = [[], [], [], []].map((el, i) => {
       return [{}, {}, {}, {}].map((e, j) => {
-        freePositions.push({ col: i, row: j });
         return {
-          id: uid++,
-          v: undefined,
-          cp: { row: j, col: i }
+          id: uid++
         };
       });
     });
   };
 
-  const clearTiles = () => {
+  const serialize = () => {
+    let s = [];
+    tiles.forEach((row, i) => {
+      row.forEach((el, j) => {
+        s.push(el);
+      });
+    });
+    tilesSerialized = s;
+  };
+
+  const getFreePositions = () => {
     freePositions = [];
-    tiles.forEach((r, i) => {
-      r.forEach((c, j) => {
-        c.v = undefined;
-        freePositions.push({ col: j, row: i });
+    tiles.forEach((row, i) => {
+      row.forEach((el, j) => {
+        if (el && !el.v) {
+          freePositions.push({ col: j, row: j });
+        }
       });
     });
   };
@@ -51,8 +63,7 @@
       if (newPos) {
         tiles[newPos.row][newPos.col] = {
           id: uid++,
-          v: getRandomInt(1, 2) * 2,
-          cp: { row: newPos.col, col: newPos.row }
+          v: getRandomInt(1, 2) * 2
         };
         return true;
       }
@@ -137,10 +148,28 @@
       tiles[i] = row;
     }
   };
+const [send, receive] = crossfade({
+		duration: d => Math.sqrt(d * 200),
 
-  const handleKeyDown = e => {
+		fallback(node, params) {
+			const style = getComputedStyle(node);
+			const transform = style.transform === 'none' ? '' : style.transform;
+
+			return {
+				duration: 600,
+				easing: quintOut,
+				css: t => `
+					transform: ${transform} scale(${t});
+					opacity: ${t}
+				`
+			};
+		}
+	});
+
+  const handleKeypress = e => {
     if (keyCodes[e.keyCode]) {
-      let down = false, right =false;
+      let down = false,
+        right = false;
       switch (keyCodes[e.keyCode]) {
         case "right":
           right = true;
@@ -155,14 +184,19 @@
         default:
           break;
       }
+      getFreePositions();
+      putNewTile();
+      serialize();
     }
   };
 
   export const newGame = () => {
     score = 0;
-    clearTiles();
+    initTiles();
+    getFreePositions();
     putNewTile();
     putNewTile();
+    serialize();
   };
 </script>
 
@@ -171,35 +205,62 @@
     display: flex;
     justify-content: center;
   }
-
   #grid {
-    border: 10px black solid;
+
+    background-color: #bbada0;
+
+    border-radius: 5px;
   }
-  .tileRow {
+  .row {
     display: grid;
     grid-template-columns: 128px 128px 128px 128px;
-    grid-template-rows: 128px;
+    grid-template-rows: 128px ;
     grid-column-gap: 10px;
     grid-row-gap: 10px;
     justify-content: center;
     align-items: center;
     padding: 10px;
   }
+  .tileUnderlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(238, 228, 218, 0.35);
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+
+    border-radius: 5px;
+  }
+
+  .tile {
+    font-size: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: bisque;
+
+    border-radius: 5px;
+  }
 </style>
 
-<svelte:window on:keyup={handleKeyDown} />
+<svelte:window on:keyup={handleKeypress} />
 <div id="gridContainer">
   <div id="grid">
-    {#each tiles as tileRow}
-      <div class:tileRow>
-        {#each tileRow as t, id (t.id)}
-          {#if t && t.v}
-            <Tile value={t.v} />
-          {:else}
-            <Tile />
-          {/if}
-        {/each}
+    {#each tiles as row}
+      <div class="row">
+    {#each row as tile, id (tile.id)}
+      <div class="tileUnderlay" in:receive="{{key: tile.id}}" out:send="{{key: tile.id}}" animate:flip={{duration:500}}>
+        {#if !tile.v}
+          <div >{''}</div>
+        {:else}
+          <div class="tile">{tile.v}</div>
+        {/if}
       </div>
+      {/each}
+</div>
     {/each}
   </div>
 </div>
