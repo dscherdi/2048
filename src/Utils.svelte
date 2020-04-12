@@ -3,7 +3,7 @@
       return (y || coord.y)*h + (x || coord.x);
   } 
   export const getCoordinatesFromPosition = (position, w, h) => {
-      return {x: position%w, y: Math.floor(position/h)};
+      return {col: position%w, row: Math.floor(position/h)};
   } 
   export const getRandomInt = (min, max) => {
     min = Math.ceil(min);

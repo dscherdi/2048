@@ -6,12 +6,13 @@
 
 <style>
   :root {
-    background-color: white;
-
     width: 100%;
     height: 100%;
   }
   #container{
+    background-color: #faf8ef;
+    color: #776e65;
+    font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
     display: flex;
     justify-content: center;
 	flex-direction: column;
