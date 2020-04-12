@@ -136,7 +136,6 @@
         arr[i].v *= 2;
         arr[i].c = colors[arr[i].v];
         arr.splice(i + 1, 1);
-        break;
       }
     }
   };
