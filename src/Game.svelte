@@ -157,11 +157,11 @@
     for (let i = 0; i < columns.length; i++) {
       let col = columns[i];
 
-      if(down) {
+      if (down) {
         col.reverse();
       }
       joinSameValuePair(col);
-      if(down) {
+      if (down) {
         col.reverse();
       }
       addEmptyTiles(col, down);
@@ -183,11 +183,11 @@
     for (let i = 0; i < rows.length; i++) {
       let row = rows[i];
 
-      if(right) {
+      if (right) {
         row.reverse();
       }
       joinSameValuePair(row);
-      if(right) {
+      if (right) {
         row.reverse();
       }
       addEmptyTiles(row, right);
@@ -274,17 +274,41 @@
         putNewTile();
         serialize();
         await tick();
-        if (freePositions.length === 0 && hasLegalMoves()) {
+        if (freePositions.length === 0 && !hasLegalMoves()) {
           gameover = true;
         }
       }
     }
   };
 
-  const hasLegalMoves = () => {};
+  const hasLegalMoves = () => {
+    let hasMoves = false;
+    for (let i = 0; i < tiles.length; i++) {
+      for (let j = 0; j < tiles[i].length; j++) {
+        if (
+          (tiles[i][j] &&
+            tiles[i][j].v &&
+            tiles[i][j + 1] &&
+            tiles[i][j + 1].v &&
+            tiles[i][j].v === tiles[i][j + 1].v) ||
+          (tiles[i][j] &&
+            tiles[i][j].v &&
+            tiles[i + 1] &&
+            tiles[i + 1][j] &&
+            tiles[i + 1][j].v &&
+            tiles[i][j].v === tiles[i + 1][j].v)
+        ) {
+          hasMoves = true;
+          break;
+        }
+      }
+    }
+    return hasMoves;
+  };
 
   export const newGame = () => {
     score = 0;
+    initTiles();
     putNewTile();
     putNewTile();
     serialize();
@@ -292,6 +316,19 @@
 </script>
 
 <style>
+  :root {
+    --grid-template-desktop: 107px 107px 107px 107px;
+    --grid-template-mobile: 60px 60px 60px 60px;
+
+    --grid-gap-desktop: 15px;
+    --grid-gap-mobile: 10px;
+
+    --font-size-sn: 55px;
+    --font-size-bn: 40px;
+    
+    --gameover-size: 503px;
+
+  }
   #topOfGame,
   #instructions {
     display: flex;
@@ -305,15 +342,14 @@
     background-color: #bbada0;
     border-radius: 5px;
     display: grid;
-    grid-template-columns: 107px 107px 107px 107px;
-    grid-template-rows: 107px 107px 107px 107px;
-    column-gap: 15px;
-    row-gap: 15px;
-    gap: 15px;
+    grid-template-columns: var(--grid-template-desktop);
+    grid-template-rows: var(--grid-template-desktop);
+    gap: var(--grid-gap-desktop);
     justify-content: center;
     align-items: center;
-    padding: 15px;
+    padding: var(--grid-gap-desktop);
   }
+
   .tileUnderlay {
     display: flex;
     justify-content: center;
@@ -345,6 +381,33 @@
     box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0),
       inset 0 0 0 1px rgba(255, 255, 255, 0);
     border-radius: 5px;
+    font-size: var(--font-size-desktop-bn-desktop)
+  }
+
+  #gameover {
+    position:absolute;
+    width: var(--gameover-size);
+    height: var(--gameover-size);
+    left: calc(50% - var(--gameover-size)/2);
+    background-color: #faf8ef;
+    opacity: .8;
+  }
+
+  @media screen and (max-width: 700px) {
+    #grid {
+      grid-template-columns: var(--grid-template-mobile);
+      grid-template-rows: var(--grid-template-mobile);
+      gap: var(--grid-gap-mobile);
+      padding: var(--grid-gap-mobile);
+    }
+
+    #gameover {
+      --gameover-size: 290px;
+    }
+    .tile {
+      --font-size-sn: 30px;
+      --font-size-bn: 25px;
+    }
   }
 </style>
 
@@ -359,6 +422,11 @@
       New Game
     </button>
   </div>
+  <div>
+  <div id="gameover" style="display: {gameover? 'initial': 'none'}">
+    GAMEOVER
+  
+  </div>
   <div id="gridContainer">
     <div id="grid">
       {#each tilesSerialized as tile}
@@ -369,8 +437,9 @@
             <div class="tileContainer">
               <label
                 class="tile"
-                style="font-size: {tile.v > 999 ? '40px' : '55px'};
-                background-color:{tile.c.color}; color:{tile.c.lightness < 70 ? 'rgb(255,250,250)' : 'inherit'}">
+                style="font-size: {tile.v > 999 ? 'var(--font-size-gn)' : 'var(--font-size-sn)'};
+                background-color:{tile.c.color}; 
+                color:{tile.c.lightness < 70 ? 'rgb(255,250,250)' : 'inherit'}">
                 <!-- in:receive={{ key: tile.id }} out:send={{ key: tile.id }} -->
                 {tile.v}
               </label>
@@ -380,6 +449,6 @@
       {/each}
     </div>
   </div>
-
+</div>
   <div id="instructions" />
 </div>
