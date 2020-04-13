@@ -308,6 +308,7 @@
 
   export const newGame = () => {
     score = 0;
+    gameover=false;
     initTiles();
     putNewTile();
     putNewTile();
