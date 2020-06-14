@@ -1,8 +1,18 @@
 <script>
-  export let tiles = new Array(16).fill({}).map((e, i) => {
-    return { posX: 0, posY: 0, el: i };
-  });
-</script>
+  import { elasticOut } from 'svelte/easing';
+  export let tiles;
+
+	function whoosh(node, params) {
+		const existingTransform = getComputedStyle(node).transform.replace('none', '');
+
+		return {
+			delay: params.delay || 0,
+			duration: params.duration || 400,
+			easing: params.easing || elasticOut,
+			css: (t, u) => `transform: ${existingTransform} scale(${t})`
+		};
+	}
+  </script>
 
 <style>
   #tiles {
@@ -30,7 +40,7 @@
 </style>
 
 <div id="tiles" class="grid-style">
-  {#each tiles as t}
-    <div class="tile" style="--pos-x: {t.posX}; --pos-y: {t.posY}">{t.el}</div>
+  {#each tiles || [] as t}
+    <div in:whoosh class="tile" style="--pos-x: {t.posX}; --pos-y: {t.posY}">{t.val}</div>
   {/each}
 </div>
