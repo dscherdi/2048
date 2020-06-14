@@ -1,11 +1,11 @@
 <script>
   import { onMount, tick } from "svelte";
-  import { getRandomInt } from "./Utils.svelte";
+  import { getRandomInt } from "../scripts/utils.js";
   import { slide } from "svelte/transition";
   import { flip } from "svelte/animate";
   import { quintOut } from "svelte/easing";
   import { crossfade } from "svelte/transition";
-  import { getCoordinatesFromPosition } from "./Utils.svelte";
+  import { getCoordinatesFromPosition } from "../scripts/utils.js";
   let score;
   let tiles = [];
   let tilesSerialized = [];

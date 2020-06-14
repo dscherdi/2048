@@ -1,4 +1,3 @@
-<script context="module">
   export const getPositionFromCoordinates = (coord, x, y, h) => {
       return (y || coord.y)*h + (x || coord.x);
   } 
@@ -10,8 +9,3 @@
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min ;
   };
-</script>
-
-<script>
-
-</script>
