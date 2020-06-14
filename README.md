@@ -1,1 +1,1 @@
-# 2048 game clone
+# 2048 game clone powered by svelte
