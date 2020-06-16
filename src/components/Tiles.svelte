@@ -41,6 +41,6 @@
 
 <div id="tiles" class="grid-style">
   {#each tiles || [] as t}
-    <div in:whoosh class="tile" style="--pos-x: {t.posX}; --pos-y: {t.posY}">{t.val}</div>
+    <div in:whoosh class="tile" style="--pos-x: {t.x}; --pos-y: {t.y}">{t.v}</div>
   {/each}
 </div>
