@@ -8,3 +8,5 @@ deployment
 build
 *.cache
 /.firebase/
+package-lock.json
+*~

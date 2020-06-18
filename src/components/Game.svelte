@@ -2,18 +2,20 @@
   import Grid from "./Grid.svelte";
   import Tiles from "./Tiles.svelte";
   import { onMount } from "svelte";
+  import { debounce } from "throttle-debounce";
+  import { tick } from "svelte";
   import {
     forloop,
     getRandomInt,
-    getCoordinatesFromPosition
+    getCoordinatesFromPosition,
+    getPositionFromCoordinates
   } from "../scripts/utils.js";
   export let score = 0;
   export let highest = 0;
-
-  let positions;
+  let uuid = 0;
   let elementMap;
   let tiles = [];
-
+  let join = [];
   onMount(() => {
     startGame();
   });
@@ -22,136 +24,247 @@
     init();
   };
 
-  let moveVertical = direction => {
-    let cols = getCols();
-    console.log("COlumns", cols);
-    for (let i = 0; i < tiles.length; i++) {
-      shiftElementByDirection(direction, tiles[i], cols[tiles[i].x]);
+  let getCols = inverse => {
+    let cols = [];
+    cols.push(tiles.filter(el => !el.m && el.v && el.x === 0));
+    cols.push(tiles.filter(el => !el.m && el.v && el.x === 1));
+    cols.push(tiles.filter(el => !el.m && el.v && el.x === 2));
+    cols.push(tiles.filter(el => !el.m && el.v && el.x === 3));
+    let cmp = (a, b) => {
+      return b.y - a.y;
+    };
+    if (inverse) {
+      cols[0] = cols[0].sort(cmp);
+      cols[1] = cols[1].sort(cmp);
+      cols[2] = cols[2].sort(cmp);
+      cols[3] = cols[3].sort(cmp);
+    }
+    return cols;
+  };
+
+  let moveVertical = async direction => {
+    clearMerged();
+    let cols;
+    switch (direction) {
+      case "down":
+        cols = getCols(true);
+        break;
+      case "up":
+        cols = getCols();
+        break;
+    }
+    // debugger;
+    let m, n;
+    for (let i = 0; i < cols.length; i++) {
+      for (let j = 0; j < cols[i].length; j++) {
+        switch (direction) {
+          case "down":
+            m = 3;
+            n = -1;
+            break;
+          case "up":
+            m = 0;
+            n = 1;
+            break;
+        }
+        for (; m < 4 && m > -1; m += n) {
+          if (cols[i][j].y === m) break;
+          if (cols[i][j].id !== elementMap[m][i][0].id) {
+            if (
+              !elementMap[m][i].v ||
+              cols[i][j].v === elementMap[m][i][0].v
+            ) {
+              let x = cols[i][j].x,
+                y = cols[i][j].y;
+              cols[i][j].x = i;
+              cols[i][j].y = m;
+              cols[i][j].n = false;
+              if (cols[i][j].v === elementMap[m][i][0].v) {
+                cols[i][j].m = true;
+                elementMap[m][i][0].m = true;
+              }
+
+              elementMap[m][i].unshift(elementMap[y][x].shift());
+
+              if (cols[i][j].m) {
+                insertNewTile({ x: i, y: m }, 2 * cols[i][j].v);
+              }
+              break;
+            }
+          }
+        }
+      }
     }
   };
 
-  let moveHorizontal = direction => {
-    let rows = getRows();
-    console.log("ROWS", rows);
-    for (let i = 0; i < tiles.length; i++) {
-      shiftElementByDirection(direction, tiles[i], rows[tiles[i].y]);
+  let getRows = inverse => {
+    let rows = [];
+    rows.push(tiles.filter(el => !el.m && el.v && el.y === 0));
+    rows.push(tiles.filter(el => !el.m && el.v && el.y === 1));
+    rows.push(tiles.filter(el => !el.m && el.v && el.y === 2));
+    rows.push(tiles.filter(el => !el.m && el.v && el.y === 3));
+    let cmp = (a, b) => {
+      return b[0].x - a[0].x;
+    };
+    if (inverse) {
+      rows[0] = rows[0].sort(cmp);
+      rows[1] = rows[1].sort(cmp);
+      rows[2] = rows[2].sort(cmp);
+      rows[3] = rows[3].sort(cmp);
+    }
+    return rows;
+  };
+
+  let moveHorizontal = async direction => {
+    clearMerged();
+    let rows;
+    switch (direction) {
+      case "right":
+        rows = getRows(true);
+        break;
+      case "left":
+        rows = getRows();
+        break;
+    }
+    let m, n;
+    for (let i = 0; i < rows.length; i++) {
+      for (let j = 0; j < rows[i].length; j++) {
+        switch (direction) {
+          case "right":
+            m = 3;
+            n = -1;
+            break;
+          case "left":
+            m = 0;
+            n = 1;
+            break;
+        }
+        for (; m < 4 && m > -1; m += n) {
+          if (rows[i][j].x === m) break;
+          if (rows[i][j].id !== elementMap[i][m][0].id) {
+            if (
+              !elementMap[i][m][0].v ||
+              rows[i][j].v === elementMap[i][m][0].v
+            ) {
+              let x = rows[i][j].x,
+                y = rows[i][j].y;
+              rows[i][j].x = m;
+              rows[i][j].y = i;
+              rows[i][j].n = false;
+              if (rows[i][j].v === elementMap[i][m][0].v) {
+                rows[i][j].m = true;
+                elementMap[i][m][0].m = true;
+              }
+              elementMap[i][m].unshift(elementMap[y][x].shift());
+
+              if (rows[i][j].m) {
+                insertNewTile({ x: m, y: i }, 2 * rows[i][j].v);
+              }
+              break;
+            }
+          }
+        }
+      }
     }
   };
 
-  let handleKeypress = e => {
+  let handleKeypress = async e => {
+    let moved = false;
+    let vertical = false;
     switch (e.key) {
       case "ArrowDown":
+        vertical = true;
         moveVertical("down");
+        moved = true;
         break;
       case "ArrowUp":
+        vertical = true;
         moveVertical("up");
+        moved = true;
         break;
       case "ArrowLeft":
         moveHorizontal("left");
+        moved = true;
         break;
       case "ArrowRight":
         moveHorizontal("right");
+        moved = true;
         break;
       default:
         break;
     }
-    insertNewTile();
-    serialize();
+    console.log(elementMap);
+    // insertNewTile();
+    tiles = tiles;
   };
 
   let init = () => {
     score = 0;
-    positions = new Array(16).fill(true).map((e, i) => {
-      return getCoordinatesFromPosition(i, 4, 4);
-    });
-
-    elementMap = [
-      [{}, {}, {}, {}],
-      [{}, {}, {}, {}],
-      [{}, {}, {}, {}],
-      [{}, {}, {}, {}]
-    ];
-
+    let id = 0;
+    elementMap = [];
+    tiles = [];
+    for (var i = 0; i < 4; i++) {
+      elementMap[i] = [];
+      for (var j = 0; j < 4; j++) {
+        elementMap[i][j] = [{ id: id, x: j, y: i }];
+        tiles.push(elementMap[i][j][0]);
+        id++;
+      }
+    }
     insertNewTile();
     insertNewTile();
-    serialize();
+    //  insertNewTile();
+    //  insertNewTile();
+    tiles = tiles;
+    // update();
   };
 
-  let getRows = () => {
-    let rows = [];
-    rows.push(tiles.filter(e => e.y === 0));
-    rows.push(tiles.filter(e => e.y === 1));
-    rows.push(tiles.filter(e => e.y === 2));
-    rows.push(tiles.filter(e => e.y === 3));
-    return rows;
-  };
-
-  let getCols = () => {
-    let cols = [];
-    cols.push(tiles.filter(e => e.x === 0));
-    cols.push(tiles.filter(e => e.x === 1));
-    cols.push(tiles.filter(e => e.x === 2));
-    cols.push(tiles.filter(e => e.x === 3));
-    return cols;
-  };
-
-  let shiftElementByDirection = (dir, element, arr) => {
-    let toBeDeleted = [];
-    switch (dir) {
-      case "right":
-      case "down":
-        toBeDeleted = forloop(arr, shiftOrJoin, true);
-        break;
-      case "left":
-      case "up":
-        toBeDeleted = forloop(arr, shiftOrJoin, false);
-        break;
-    }
-    if (toBeDeleted.length) {
-      insertNewTile(
-        { x: toBeDeleted[0].x, y: toBeDeleted[1].y },
-        toBeDeleted[0].v
-      );
-      tiles.splice(tiles.indexOf(toBeDeleted[0]), 1);
-      tiles.splice(tiles.indexOf(toBeDeleted[1]), 1);
-    }
-  };
-
-  let shiftOrJoin = (el, i, arr) => {
-    console.log(el, i, arr);
-    if (!arr[i].v || arr[i].v === el.v) {
-      el.x = arr[i].x;
-      el.y = arr[i].y;
-    }
-    if (arr[i].v === el.v) {
-      return [el, arr[i]];
-    }
-    return [];
-  };
-
-  let serialize = () => {
-    var t = [];
-    for (var i = 0; i < elementMap.length; i++) {
-      for (var j = 0; j < elementMap[i].length; j++) {
-        if (elementMap[i][j].v) {
-          t.push(elementMap[i][j]);
+  let clearMerged = () => {
+    for(let i =0; i<elementMap.length; i++) {
+      for(let j=0; j<elementMap[i].length; j++) {
+        for(let k=0; k< elementMap[i][j].length; k++) {
+          if(elementMap[i][j][k].m) {
+            elementMap[i][j].splice(k, 1);
+          }
         }
       }
     }
-    tiles = t;
+    for(let i = 0; i< tiles.length; i++) {
+      if(tiles[i].m){
+        tiles.splice(i,1);
+      }
+    }
+  }
+
+  let getFreePositions = () => {
+    let positions = [];
+    for (var i = 0; i < elementMap.length; i++) {
+      for (var j = 0; j < elementMap[i].length; j++) {
+        if (!elementMap[i][j][0].v) {
+          positions.push({ x: j, y: i });
+        }
+      }
+    }
+    return positions;
+  };
+
+  let update = async () => {
+    tiles = tiles;
+    await tick();
   };
 
   let insertNewTile = (pos, val) => {
-    let randomPos = pos || getRandomInt(0, positions.length - 1);
-    let randomVal = val || getRandomInt(1, 2) * 2;
+    let positions = getFreePositions();
+    if (positions.length) {
+      let randomPos = pos || getRandomInt(0, positions.length - 1);
+      let randomVal = val || getRandomInt(1, 2) * 2;
+      let x = pos ? pos.x : positions[randomPos].x;
+      let y = pos ? pos.y : positions[randomPos].y;
 
-    let newTile = {
-      x: (pos && pos.x) || positions[randomPos].x,
-      y: (pos && pos.y) || positions[randomPos].y,
-      v: randomVal
-    };
-    elementMap[positions[randomPos].y][positions[randomPos].x] = newTile;
-    positions.splice(randomPos, 1);
+      let newTile = { id: ++uuid, x: x, y: y, v: randomVal, n: true };
+      elementMap[y][x].unshift(newTile);
+      tiles.push(newTile);
+    }
   };
 </script>
 
@@ -161,14 +274,14 @@
     margin: auto;
     margin-top: 25px;
 
-    width: 550px;
-    height: 550px;
-    min-width: 550px;
-    min-height: 550px;
+    width: 300px;
+    height: 300px;
+    min-width: 300px;
+    min-height: 300px;
   }
 </style>
 
-<svelte:window on:keyup={handleKeypress} />
+<svelte:window on:keyup={debounce(150, true, handleKeypress)} />
 <div id="game">
 
   <Grid />

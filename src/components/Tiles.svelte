@@ -1,18 +1,7 @@
 <script>
-  import { elasticOut } from 'svelte/easing';
+  import { elasticOut } from "svelte/easing";
   export let tiles;
-
-	function whoosh(node, params) {
-		const existingTransform = getComputedStyle(node).transform.replace('none', '');
-
-		return {
-			delay: params.delay || 0,
-			duration: params.duration || 400,
-			easing: params.easing || elasticOut,
-			css: (t, u) => `transform: ${existingTransform} scale(${t})`
-		};
-	}
-  </script>
+</script>
 
 <style>
   #tiles {
@@ -20,9 +9,7 @@
     border: transparent solid var(--grid-gap);
   }
   .tile {
-    --pos-x: 0;
-    --pos-y: 0;
-
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -31,16 +18,36 @@
     border-radius: 4px;
     background-color: #777777;
     grid-area: 1/1;
+    z-index: 2;
     transition: var(--main-transition);
-    transform: translate(
-      calc(var(--pos-x) * 100% + var(--pos-x) * var(--grid-gap)),
-      calc(var(--pos-y) * 100% + var(--pos-y) * var(--grid-gap))
-    );
+    left:  calc(var(--pos-x) * 100% + var(--pos-x) * var(--grid-gap));
+    top: calc(var(--pos-y) * 100% + var(--pos-y) * var(--grid-gap));
   }
+  .new-tile {
+    animation: newtile 150ms ease-out;
+  }
+
+
+  @keyframes newtile {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .merged-tile {
+    z-index: 1;
+    opacity: 0;
+  }
+  
 </style>
 
 <div id="tiles" class="grid-style">
-  {#each tiles || [] as t}
-    <div in:whoosh class="tile" style="--pos-x: {t.x}; --pos-y: {t.y}">{t.v}</div>
+  {#each tiles.filter(t => t.v !== undefined) || [] as t (t.id)}
+      <div class="tile {t.n ? 'new-tile' : ''}  {t.m ? 'merged-tile' : ''}" style="--pos-x: {t.x}; --pos-y: {t.y}">
+        {t.v}
+      </div>
   {/each}
 </div>
