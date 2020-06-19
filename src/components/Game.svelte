@@ -13,7 +13,7 @@
   export let score = 0;
   export let highest = 0;
   let uuid = 0;
-  let elementMap;
+  let elementMap = [];
   let tiles = [];
   let join = [];
   onMount(() => {
@@ -43,7 +43,6 @@
   };
 
   let moveVertical = async direction => {
-    clearMerged();
     let cols;
     switch (direction) {
       case "down":
@@ -68,25 +67,27 @@
             break;
         }
         for (; m < 4 && m > -1; m += n) {
+          console.log(i, j, m, cols[i][j], elementMap[m][i]);
           if (cols[i][j].y === m) break;
           if (cols[i][j].id !== elementMap[m][i][0].id) {
             if (
               !elementMap[m][i].v ||
-              cols[i][j].v === elementMap[m][i][0].v
+              (cols[i][j].v === elementMap[m][i][0].v && !elementMap[m][i].n)
             ) {
+              let merged = false;
               let x = cols[i][j].x,
                 y = cols[i][j].y;
               cols[i][j].x = i;
               cols[i][j].y = m;
-              cols[i][j].n = false;
               if (cols[i][j].v === elementMap[m][i][0].v) {
+                merged = true;
                 cols[i][j].m = true;
                 elementMap[m][i][0].m = true;
               }
 
               elementMap[m][i].unshift(elementMap[y][x].shift());
 
-              if (cols[i][j].m) {
+              if (merged) {
                 insertNewTile({ x: i, y: m }, 2 * cols[i][j].v);
               }
               break;
@@ -104,7 +105,7 @@
     rows.push(tiles.filter(el => !el.m && el.v && el.y === 2));
     rows.push(tiles.filter(el => !el.m && el.v && el.y === 3));
     let cmp = (a, b) => {
-      return b[0].x - a[0].x;
+      return b.x - a.x;
     };
     if (inverse) {
       rows[0] = rows[0].sort(cmp);
@@ -116,7 +117,6 @@
   };
 
   let moveHorizontal = async direction => {
-    clearMerged();
     let rows;
     switch (direction) {
       case "right":
@@ -140,24 +140,29 @@
             break;
         }
         for (; m < 4 && m > -1; m += n) {
+          rows[i][j].n = false;
           if (rows[i][j].x === m) break;
+
           if (rows[i][j].id !== elementMap[i][m][0].id) {
             if (
               !elementMap[i][m][0].v ||
-              rows[i][j].v === elementMap[i][m][0].v
+              (rows[i][j].v === elementMap[i][m][0].v && !elementMap[i][m][0].n)
             ) {
+              console.log(i, j, m, rows[i][j], elementMap[i][m]);
+              let merged = false;
               let x = rows[i][j].x,
                 y = rows[i][j].y;
               rows[i][j].x = m;
               rows[i][j].y = i;
-              rows[i][j].n = false;
               if (rows[i][j].v === elementMap[i][m][0].v) {
+                merged = true;
                 rows[i][j].m = true;
                 elementMap[i][m][0].m = true;
               }
+
               elementMap[i][m].unshift(elementMap[y][x].shift());
 
-              if (rows[i][j].m) {
+              if (merged) {
                 insertNewTile({ x: m, y: i }, 2 * rows[i][j].v);
               }
               break;
@@ -169,6 +174,8 @@
   };
 
   let handleKeypress = async e => {
+    e.preventDefault();
+
     let moved = false;
     let vertical = false;
     switch (e.key) {
@@ -193,48 +200,30 @@
       default:
         break;
     }
-    console.log(elementMap);
-    // insertNewTile();
-    tiles = tiles;
+    if (moved) {
+      // setTimeout(insertNewTile, 200);
+      tiles = tiles;
+      console.log(tiles);
+    }
   };
 
   let init = () => {
     score = 0;
-    let id = 0;
     elementMap = [];
     tiles = [];
     for (var i = 0; i < 4; i++) {
       elementMap[i] = [];
       for (var j = 0; j < 4; j++) {
-        elementMap[i][j] = [{ id: id, x: j, y: i }];
-        tiles.push(elementMap[i][j][0]);
-        id++;
+        elementMap[i][j] = [{ id: ++uuid, x: j, y: i }];
       }
     }
     insertNewTile();
     insertNewTile();
-    //  insertNewTile();
-    //  insertNewTile();
+    insertNewTile();
+    insertNewTile();
     tiles = tiles;
     // update();
   };
-
-  let clearMerged = () => {
-    for(let i =0; i<elementMap.length; i++) {
-      for(let j=0; j<elementMap[i].length; j++) {
-        for(let k=0; k< elementMap[i][j].length; k++) {
-          if(elementMap[i][j][k].m) {
-            elementMap[i][j].splice(k, 1);
-          }
-        }
-      }
-    }
-    for(let i = 0; i< tiles.length; i++) {
-      if(tiles[i].m){
-        tiles.splice(i,1);
-      }
-    }
-  }
 
   let getFreePositions = () => {
     let positions = [];
@@ -248,9 +237,27 @@
     return positions;
   };
 
-  let update = async () => {
-    tiles = tiles;
-    await tick();
+  let clearMerged = () => {
+    if (elementMap) {
+      for (let i = 0; i < elementMap.length; i++) {
+        for (let j = 0; j < elementMap[i].length; j++) {
+          for (let k = 0; k < elementMap[i][j].length; k++) {
+            if (elementMap[i][j][k].m) {
+              elementMap[i][j].splice(k, 1);
+            }
+          }
+        }
+      }
+      let i = 0;
+      while (i < tiles.length) {
+        if (tile[i].n) tiles[i].n = false;
+        if (tiles[i].m) {
+          tiles.splice(i, 1);
+        } else {
+          i++;
+        }
+      }
+    }
   };
 
   let insertNewTile = (pos, val) => {
@@ -281,10 +288,14 @@
   }
 </style>
 
-<svelte:window on:keyup={debounce(150, true, handleKeypress)} />
+<svelte:window
+  on:keydown={e => {
+    e.preventDefault();
+  }}
+  on:keyup={debounce(150, true, handleKeypress)} />
 <div id="game">
 
   <Grid />
-  <Tiles {tiles} />
+  <Tiles on:afterUpdate={() => {}} {tiles} />
 
 </div>

@@ -1,6 +1,12 @@
 <script>
   import { elasticOut } from "svelte/easing";
+  import { afterUpdate, createEventDispatcher } from "svelte";
   export let tiles;
+  const dispatch = createEventDispatcher();
+  afterUpdate(() => {
+    console.log("afterUpdate");
+    dispatch("afterUpdate");
+  });
 </script>
 
 <style>
@@ -24,7 +30,7 @@
     top: calc(var(--pos-y) * 100% + var(--pos-y) * var(--grid-gap));
   }
   .new-tile {
-    animation: newtile 150ms ease-out;
+    animation: newtile 250ms ease-out;
   }
 
 
