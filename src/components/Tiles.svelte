@@ -30,7 +30,7 @@
     top: calc(var(--pos-y) * 100% + var(--pos-y) * var(--grid-gap));
   }
   .new-tile {
-    animation: newtile 250ms ease-out;
+    animation: newtile 250ms  cubic-bezier(0.64, 0.57, 0.67, 1.53);
   }
 
 
@@ -45,7 +45,7 @@
 
   .merged-tile {
     z-index: 1;
-    opacity: 0;
+    /* opacity: 0; */
   }
   
 </style>
