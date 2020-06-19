@@ -28,25 +28,19 @@
   let move = direction => {
     let tls,
       vertical = false;
-      console.log(direction);
     switch (direction) {
       case "ArrowDown":
         vertical = true;
         tls = getCols(true);
-        console.log("gotcoldown");
         break;
       case "ArrowUp":
         vertical = true;
         tls = getCols();
-        console.log("gotcolup");
         break;
       case "ArrowRight":
-        
-        console.log("gotrowright");
         tls = getRows(true);
         break;
       case "ArrowLeft":
-        console.log("gotrowleft");
         tls = getRows();
         break;
     }
@@ -60,38 +54,36 @@
         switch (direction) {
           case "ArrowRight":
           case "ArrowDown":
-            console.log("inverse");
             m = 3;
             n = -1;
             break;
           case "ArrowLeft":
           case "ArrowUp":
-            console.log("notinverse");
             m = 0;
             n = 1;
             break;
         }
         for (; m < 4 && m > -1; m += n) {
-          let el, mergedElPos;
+          let el, nel, mergedElPos;
           if (vertical) {
-            mergedElPos = { x: i, y: m };
             el = elementMap[m][i];
-            console.log("vertical");
+            nel = elementMap[m+n] && elementMap[m+n][i];
+            mergedElPos = { x: i, y: m };
           } else {
-            mergedElPos = { x: m, y: i };
             el = elementMap[i][m];
-            console.log("horizontal");
+            nel = elementMap[i][m+n];
+            mergedElPos = { x: m, y: i };
           }
-          console.log(tls, tls[i][j], el);
-          if (el && tls[i][j].id === el.id) {
-            break;
-          }
-          if (!el || (tls[i][j].v === el.v && !el.n)) {
+            if (el && tls[i][j].id === el.id) {
+              break;
+            }
+            // debugger;
+          if (!el || (tls[i][j].v === el.v && !el.n && (!nel || nel.id === tls[i][j].id))) {
             change = 1;
             let x = tls[i][j].x,
               y = tls[i][j].y;
-            tls[i][j].x = i;
-            tls[i][j].y = m;
+            tls[i][j].x = vertical ? i : m;
+            tls[i][j].y = vertical ? m : i;
 
             elementMap[y][x] = false;
             if (el && tls[i][j].v === el.v) {
@@ -173,10 +165,14 @@
       default:
         break;
     }
-    console.log(moved);
+
     switch (moved) {
       case 1:
-        // setTimeout(insertNewTile, 200);
+        setTimeout(() => {
+          insertNewTile();
+          tiles = tiles;
+        }, 300);
+        break;
       case 0:
         tiles = tiles;
         break;
@@ -250,10 +246,10 @@
     margin: auto;
     margin-top: 25px;
 
-    width: 300px;
-    height: 300px;
-    min-width: 300px;
-    min-height: 300px;
+    width: 550px;
+    height: 550px;
+    min-width: 550px;
+    min-height: 550px;
   }
 </style>
 
@@ -261,7 +257,7 @@
   on:keydown={e => {
     e.preventDefault();
   }}
-  on:keyup={debounce(150, true, handleKeypress)} />
+  on:keyup={debounce(50, true, handleKeypress)} />
 <div id="game">
 
   <Grid />
