@@ -1,12 +1,6 @@
 <script>
   import { elasticOut } from "svelte/easing";
-  import { afterUpdate, createEventDispatcher } from "svelte";
   export let tiles;
-  const dispatch = createEventDispatcher();
-  afterUpdate(() => {
-    console.log("afterUpdate");
-    dispatch("afterUpdate");
-  });
 </script>
 
 <style>

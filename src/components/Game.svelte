@@ -28,19 +28,25 @@
   let move = direction => {
     let tls,
       vertical = false;
+      console.log(direction);
     switch (direction) {
       case "ArrowDown":
         vertical = true;
         tls = getCols(true);
+        console.log("gotcoldown");
         break;
       case "ArrowUp":
         vertical = true;
         tls = getCols();
+        console.log("gotcolup");
         break;
       case "ArrowRight":
+        
+        console.log("gotrowright");
         tls = getRows(true);
         break;
       case "ArrowLeft":
+        console.log("gotrowleft");
         tls = getRows();
         break;
     }
@@ -54,27 +60,34 @@
         switch (direction) {
           case "ArrowRight":
           case "ArrowDown":
+            console.log("inverse");
             m = 3;
             n = -1;
             break;
           case "ArrowLeft":
           case "ArrowUp":
+            console.log("notinverse");
             m = 0;
             n = 1;
             break;
         }
         for (; m < 4 && m > -1; m += n) {
-          let el;
+          let el, mergedElPos;
           if (vertical) {
+            mergedElPos = { x: i, y: m };
             el = elementMap[m][i];
+            console.log("vertical");
           } else {
-            elementMap[i][m];
+            mergedElPos = { x: m, y: i };
+            el = elementMap[i][m];
+            console.log("horizontal");
           }
+          console.log(tls, tls[i][j], el);
           if (el && tls[i][j].id === el.id) {
             break;
           }
           if (!el || (tls[i][j].v === el.v && !el.n)) {
-            change = true;
+            change = 1;
             let x = tls[i][j].x,
               y = tls[i][j].y;
             tls[i][j].x = i;
@@ -89,7 +102,7 @@
               } else {
                 elementMap[i][m] = false;
               }
-              insertNewTile({ x: i, y: m }, 2 * tls[i][j].v);
+              insertNewTile(mergedElPos, 2 * tls[i][j].v);
             } else {
               if (vertical) {
                 elementMap[m][i] = tls[i][j];
@@ -132,10 +145,10 @@
     rows.push(tiles.filter(el => !el.m && el.v && el.y === 2));
     rows.push(tiles.filter(el => !el.m && el.v && el.y === 3));
     let cmpDescending = (a, b) => {
-      return b.y - a.y;
+      return b.x - a.x;
     };
     let cmpAscending = (a, b) => {
-      return a.y - b.y;
+      return a.x - b.x;
     };
     let cmp = inverse ? cmpDescending : cmpAscending;
     rows[0] = rows[0].sort(cmp);
@@ -160,10 +173,10 @@
       default:
         break;
     }
+    console.log(moved);
     switch (moved) {
       case 1:
-        setTimeout(insertNewTile, 200);
-        tiles = tiles;
+        // setTimeout(insertNewTile, 200);
       case 0:
         tiles = tiles;
         break;
