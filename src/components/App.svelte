@@ -92,6 +92,17 @@
     margin: 0;
   }
 }
+@media screen and (max-height: 420px) and (orientation: landscape) {
+  /* font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width]))); */
+
+  header {
+
+    align-items: center;
+    justify-content: center;
+    width : 100vh;
+    height: 100vh;
+  }
+}
 </style>
 
 <div id="container">

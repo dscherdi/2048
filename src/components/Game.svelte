@@ -351,13 +351,20 @@
     margin: 0;
   }
   #game, .gameover, .won {
-    width :max(50vw, 320px);
-    height: max(50vw, 320px);
+    width :max(50vw, 280px);
+    height: max(50vw, 280px);
     max-width: 420px;
     max-height: 420px;
-    min-width: 320px;
-    min-height: 320px;
+    min-width: 280px;
+    min-height: 280px;
 
+  }
+}
+@media screen and (max-height: 420px) and (orientation: landscape) {
+  /* font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width]))); */
+  #game, .gameover, .won {
+    width : 100vh;
+    height: 100vh;
   }
 }
 </style>
