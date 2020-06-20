@@ -30,7 +30,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 40px;
+     font-size: calc(17px + (30 - 17) * ((100vw - 320px) / (1600 - 300)));
     font-weight: bold;
     border-radius: 4px;
     grid-area: 1/1;

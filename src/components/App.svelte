@@ -19,8 +19,9 @@
   }
   h1 {
     text-align: center;
-    font-size: 80px;
-    padding-bottom: 50px;
+     font-size: calc(30px + (50 - 30) * ((100vw - 320px) / (1600 - 300)));
+    padding-bottom: 10px;
+    margin: 0;
   }
 
   #score,
@@ -31,7 +32,7 @@
     background-color: var(--grid-bckgrnd-color);
     /* width: 150px; */
     /* height: 50px; */
-    font-size: 25px;
+     font-size: calc(12px + (18 - 12) * ((100vw - 320px) / (1600 - 300)));
     padding: 14px;
     border-radius: 4px;
     color: whitesmoke;
@@ -49,8 +50,48 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 25px;
+    text-align: center;
+     font-size: calc(18px + (22 - 18) * ((100vw - 320px) / (1600 - 300)));
   }
+
+
+@media screen and (max-width: 1024px) and (orientation: portrait) {
+  /* font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width]))); */
+  h1 {
+    padding-bottom: 10px;
+  }
+  header {
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    max-width: 420px;
+    max-height: 420px;
+    min-width: 320px;
+    min-height: 200px;
+  }
+}
+
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+  /* font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width]))); */
+  #container {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+  h1 {
+    padding-bottom: 10px;
+  }
+  header {
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    max-width: 420px;
+    max-height: 420px;
+    min-width: 320px;
+    min-height: 200px;
+    margin: 0;
+  }
+}
 </style>
 
 <div id="container">

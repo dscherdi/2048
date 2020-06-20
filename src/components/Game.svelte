@@ -307,18 +307,18 @@
     margin: auto;
     margin-top: 25px;
 
-    width: 550px;
-    height: 550px;
-    min-width: 550px;
-    min-height: 550px;
+    width: 420px;
+    height: 420px;
+    min-width: 420px;
+    min-height: 420px;
   }
   .gameover,
   .won {
     display: flex;
-    width: 550px;
-    height: 550px;
-    min-width: 550px;
-    min-height: 550px;
+    width: 420px;
+    height: 420px;
+    min-width: 420px;
+    min-height: 420px;
     border-radius: 4px;
     z-index: 3;
     justify-content: center;
@@ -333,6 +333,33 @@
   .won {
     opacity: 0.9;
   }
+
+@media screen and (max-width: 1024px) and (orientation: portrait) {
+  /* font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width]))); */
+  #game, .gameover, .won {
+    width :max(100vw, 320px);
+    height: max(100vw, 320px);
+    max-width: 420px;
+    max-height: 420px;
+    min-width: 320px;
+    min-height: 320px;
+  }
+}
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+  /* font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width]))); */
+  #game {
+    margin: 0;
+  }
+  #game, .gameover, .won {
+    width :max(50vw, 320px);
+    height: max(50vw, 320px);
+    max-width: 420px;
+    max-height: 420px;
+    min-width: 320px;
+    min-height: 320px;
+
+  }
+}
 </style>
 
 <svelte:options accessors={true} />

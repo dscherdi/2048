@@ -52,6 +52,7 @@ body {
 	background-color: dimgray;
 	color: whitesmoke;
 	font-family: 'Roboto Mono', monospace;
+	padding: 0 !important;
 }
 .grid-style {
 	display: grid;
