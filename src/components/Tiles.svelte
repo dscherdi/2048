@@ -1,13 +1,6 @@
 <script>
   import { elasticOut } from "svelte/easing";
-  import {createEventDispatcher, afterUpdate} from "svelte";
   export let tiles;
-
-  let dispatch = createEventDispatcher();
-
-  afterUpdate(() => {
-    dispatch('afterUpdate');
-  }); 
 
   let colors = {
     2: '#777777',
@@ -40,7 +33,6 @@
     font-size: 40px;
     font-weight: bold;
     border-radius: 4px;
-    background-color: #777777;
     grid-area: 1/1;
     z-index: 2;
     transition: var(--main-transition);
@@ -49,6 +41,7 @@
   }
   .new-tile {
     animation: scaleIn 250ms  cubic-bezier(0.64, 0.57, 0.67, 1.53);
+    animation-fill-mode: forwards;
   }
 
   .merged-tile {
@@ -60,7 +53,7 @@
 
 <div id="tiles" class="grid-style">
   {#each tiles.filter(t => t.v !== undefined) || [] as t (t.id)}
-      <div class="tile {t.n ? 'new-tile' : ''}  {t.m ? 'merged-tile' : ''}" style="--pos-x: {t.x}; --pos-y: {t.y}; background-color: {colors[t.v] || 'black'}">
+      <div class="tile {t.n ? 'new-tile' : ''}  {t.m ? 'merged-tile' : ''}" style="--pos-x: {t.x}; --pos-y: {t.y}; background-color: {colors[t.v] || 'black'};">
         {t.v}
       </div>
   {/each}

@@ -3,9 +3,7 @@
   import Tiles from "./Tiles.svelte";
   import { onMount } from "svelte";
   import { debounce } from "throttle-debounce";
-  import {
-    getRandomInt,
-  } from "../scripts/utils.js";
+  import { getRandomInt, swipedetect } from "../scripts/utils.js";
   export let score = 0;
   export let highest = 0;
   export let gameover = false;
@@ -16,6 +14,7 @@
   let tiles = [];
 
   onMount(() => {
+    swipedetect(document.getElementById("game"), handleUserMovement);
     startGame();
   });
 
@@ -25,15 +24,19 @@
 
   let isGameover = () => {
     if (!gameover) {
-      for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
           let el = elementMap[i][j];
-          let elv = elementMap[i + 1][j];
+          let elv = elementMap[i + 1] && elementMap[i + 1][j];
           let elh = elementMap[i][j + 1];
-          if (!el || !elv || !elh) return false;
-          else if (el.v === elv.v || el.v === elh.v) {
+          if (
+            !el ||
+            (i + 1 < 4 && !elv) ||
+            (j + 1 < 4 && !elh) ||
+            (i + 1 < 4 && el.v === elv.v) ||
+            (j + 1 < 4 && el.v === elh.v)
+          )
             return false;
-          }
         }
       }
     }
@@ -44,17 +47,21 @@
     let tls,
       vertical = false;
     switch (direction) {
+      case "downSwipe":
       case "ArrowDown":
         vertical = true;
         tls = getCols(true);
         break;
+      case "upSwipe":
       case "ArrowUp":
         vertical = true;
         tls = getCols();
         break;
+      case "rightSwipe":
       case "ArrowRight":
         tls = getRows(true);
         break;
+      case "leftSwipe":
       case "ArrowLeft":
         tls = getRows();
         break;
@@ -67,11 +74,15 @@
     for (let i = 0; i < tls.length; i++) {
       for (let j = 0; j < tls[i].length; j++) {
         switch (direction) {
+          case "downSwipe":
+          case "rightSwipe":
           case "ArrowRight":
           case "ArrowDown":
             m = 3;
             n = -1;
             break;
+          case "upSwipe":
+          case "leftSwipe":
           case "ArrowLeft":
           case "ArrowUp":
             m = 0;
@@ -167,22 +178,28 @@
     rows[3] = rows[3].sort(cmp);
     return rows;
   };
-
-  let handleKeypress = async e => {
+  let handleKeypress = e => {
+    e && e.preventDefault && e.preventDefault();
+    handleUserMovement(e.key);
+  };
+  let handleUserMovement = direction => {
     if (!gameover) {
       if (won) {
         won = false;
       }
-      e.preventDefault();
       clearMerged();
       let moved = 0;
       let vertical = false;
-      switch (e.key) {
+      switch (direction) {
+        case "downSwipe":
+        case "upSwipe":
+        case "leftSwipe":
+        case "rightSwipe":
         case "ArrowDown":
         case "ArrowUp":
         case "ArrowLeft":
         case "ArrowRight":
-          moved = move(e.key);
+          moved = move(direction);
           break;
         default:
           break;
@@ -191,7 +208,7 @@
         setTimeout(() => {
           insertNewTile();
           tiles = tiles;
-        }, 300);
+        }, 200);
       } else {
         tiles = tiles;
       }
@@ -206,7 +223,7 @@
       elementMap = JSON.parse(window.localStorage.elementMap);
       for (var i = 0; i < 4; i++) {
         for (var j = 0; j < 4; j++) {
-          if(elementMap[i][j]) {
+          if (elementMap[i][j]) {
             tiles.push(elementMap[i][j]);
           }
         }
@@ -271,12 +288,10 @@
     }
   };
 
-  let afterUpdate = () => {
-    if (elementMap && elementMap.length) {
+  $: {
+    if (tiles && tiles.length) {
       gameover = isGameover();
     }
-  };
-  $: {
     if (loaded) {
       window.localStorage.setItem("highestScore", highest);
       window.localStorage.setItem("score", score);
@@ -329,7 +344,7 @@
 <div id="game">
 
   <Grid />
-  <Tiles on:afterUpdate={afterUpdate} {tiles} />
+  <Tiles {tiles} />
   {#if gameover}
     <div class="gameover">
       <h1>GAMEOVER</h1>
