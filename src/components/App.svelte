@@ -2,6 +2,7 @@
   import Game from "./Game.svelte";
   let score = 0;
   let highest = 0;
+  let game;
 </script>
 
 <style>
@@ -56,7 +57,7 @@
   <header>
     <h1>2048</h1>
     <div id="buttons">
-      <button id="new-game">New Game</button>
+      <button on:click={game.startGame()} id="new-game">New Game</button>
       <div style="display:flex; flex-direction: row;">
         <div id="score">
           <span style="color: var(--underlay-tile-color);">Score</span>
@@ -70,5 +71,5 @@
     </div>
     <p>Join the numbers and get to the 2048 tile!</p>
   </header>
-  <Game bind:score bind:highest />
+  <Game bind:this={game} bind:score bind:highest/>
 </div>
