@@ -305,20 +305,18 @@
   #game {
     display: grid;
     margin: auto;
-    margin-top: 25px;
-
+    margin-top: 10px;
+    padding-bottom:10px;
     width: 420px;
     height: 420px;
-    min-width: 420px;
-    min-height: 420px;
+    max-width: 420px;
+    max-height: 420px;
   }
   .gameover,
   .won {
     display: flex;
     width: 420px;
     height: 420px;
-    min-width: 420px;
-    min-height: 420px;
     border-radius: 4px;
     z-index: 3;
     justify-content: center;
@@ -337,15 +335,11 @@
 @media screen and (max-width: 1024px) and (orientation: portrait) {
   /* font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width]))); */
   #game, .gameover, .won {
-    width :max(100vw, 320px);
-    height: max(100vw, 320px);
-    max-width: 420px;
-    max-height: 420px;
-    min-width: 320px;
-    min-height: 320px;
+    width :min(95vw, 50vh);
+    height: min(95vw, 50vh);
   }
 }
-@media screen and (max-width: 1024px) and (orientation: landscape) {
+@media screen and (max-width: 1440px) and (orientation: landscape) {
   /* font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width]))); */
   #game {
     margin: 0;
@@ -353,10 +347,6 @@
   #game, .gameover, .won {
     width :max(50vw, 280px);
     height: max(50vw, 280px);
-    max-width: 420px;
-    max-height: 420px;
-    min-width: 280px;
-    min-height: 280px;
 
   }
 }

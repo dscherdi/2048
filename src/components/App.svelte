@@ -15,7 +15,7 @@
   header {
     margin: auto;
     margin-bottom: 0;
-    width: 550px;
+    width: 420px;
   }
   h1 {
     text-align: center;
@@ -69,9 +69,13 @@
     min-width: 320px;
     min-height: 200px;
   }
+
+  p{
+    margin: 7px 0 7px 0;
+  }
 }
 
-@media screen and (max-width: 1024px) and (orientation: landscape) {
+@media screen and (max-width: 1440px) and (orientation: landscape) {
   /* font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width]))); */
   #container {
     flex-direction: row;
@@ -84,12 +88,13 @@
   header {
     display: flex;
     flex-direction: column;
-    width: auto;
+    width: 300px;
     max-width: 420px;
     max-height: 420px;
     min-width: 320px;
     min-height: 200px;
     margin: 0;
+    margin-right: 20px;
   }
 }
 @media screen and (max-height: 420px) and (orientation: landscape) {

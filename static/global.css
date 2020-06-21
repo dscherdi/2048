@@ -46,8 +46,11 @@ code {
 	--grid-bckgrnd-color: rgb(17, 17, 17);
 	--underlay-tile-color: rgb(153, 153, 153);
 	--main-transition: all 0.15s cubic-bezier(0.645, 0.045, 0.355, 1) 0s;
-	--grid-gap: 14px;
+	--grid-gap: 7px;
 }
+
+
+
 body {
 	background-color: dimgray;
 	color: whitesmoke;
