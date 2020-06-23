@@ -35,7 +35,7 @@
      font-size: calc(12px + (18 - 12) * ((100vw - 320px) / (1600 - 300)));
     padding: 14px;
     border-radius: 4px;
-    color: whitesmoke;
+    color: inherit;
     margin: 7px;
     display: flex;
     flex-direction: column;

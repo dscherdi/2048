@@ -315,8 +315,8 @@
   .gameover,
   .won {
     display: flex;
-    width: 420px;
-    height: 420px;
+    width: 100%;
+    height: 100%;
     border-radius: 4px;
     z-index: 3;
     justify-content: center;
@@ -334,7 +334,7 @@
 
 @media screen and (max-width: 1024px) and (orientation: portrait) {
   /* font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width]))); */
-  #game, .gameover, .won {
+  #game {
     width :min(95vw, 50vh);
     height: min(95vw, 50vh);
   }
@@ -344,7 +344,7 @@
   #game {
     margin: 0;
   }
-  #game, .gameover, .won {
+  #game {
     width :max(50vw, 280px);
     height: max(50vw, 280px);
 
@@ -352,7 +352,7 @@
 }
 @media screen and (max-height: 420px) and (orientation: landscape) {
   /* font-size: calc([minimum size] + ([maximum size] - [minimum size]) * ((100vw - [minimum viewport width]) / ([maximum viewport width] - [minimum viewport width]))); */
-  #game, .gameover, .won {
+  #game {
     width : 100vh;
     height: 100vh;
   }

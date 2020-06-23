@@ -43,8 +43,8 @@ code {
 :root {
 	width: 100%;
 	height: 100%;
-	--grid-bckgrnd-color: rgb(17, 17, 17);
-	--underlay-tile-color: rgb(153, 153, 153);
+	--grid-bckgrnd-color: #263238;
+	--underlay-tile-color: #546E7A;
 	--main-transition: all 0.15s cubic-bezier(0.645, 0.045, 0.355, 1) 0s;
 	--grid-gap: 7px;
 }
@@ -52,8 +52,8 @@ code {
 
 
 body {
-	background-color: dimgray;
-	color: whitesmoke;
+	background-color: #121212;
+	color: white;
 	font-family: 'Roboto Mono', monospace;
 	padding: 0 !important;
 }
