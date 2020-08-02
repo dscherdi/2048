@@ -1,6 +1,6 @@
-# My Personal Page 
+# Dark themed 2048 game
 
-My personal page is visible at [Personal Page](https://www.dscherdil.com). It is build using [Sapper](https://sapper.svelte.dev/) /  [Svelte](https://svelte.dev/) / [Firebase](https://firebase.google.com/).  
+Visible at [2048](https://project-855728896349635279.web.app/)
 
 ## To Use
 
